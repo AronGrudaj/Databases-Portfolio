@@ -1,4 +1,4 @@
-# Personal Portfolio for the IoT/MCU class <at university/school>
+# Personal Portfolio for the IoT/MCU class at HSBI
 
 > When you start editing this file, remove this description.
 >
@@ -43,9 +43,9 @@
 > - If you want to take a class on git and even potentially get certified:
 >   https://education.github.com/experiences/foundations_certificate
 
-Author: <replace these pointy brackets with your full name>
+Author: Aron Grudaj
 
-My partner is <replace these pointy brackets with their full name>, [portfolio link](https://github.com/partner/iot-portfolio)
+My partners are Jonathan Behring [portfolio link](https://github.com/Jonathan-T-B/Databases-Portfolio.git) and Ryan Slassi [portfolio link](https://github.com/RyanSlassi/Databases-Portfolio.git)
 
 In my team for the final project, I also had the following members:
 - <replace these pointy brackets with their full name>, [portfolio link](https://github.com/partner/iot-portfolio)
