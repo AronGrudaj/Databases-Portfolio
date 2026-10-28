@@ -1,0 +1,76 @@
+SQLite 3.37.2, 5 runs per cell, median reported
+
+=== baseline (no extra index) ===
+  [  124.445 ms] dashboard (aggregate, 2025)
+        SCAN ol
+        SEARCH o USING INTEGER PRIMARY KEY (rowid=?)
+        SEARCH c USING INTEGER PRIMARY KEY (rowid=?)
+        SEARCH p USING INTEGER PRIMARY KEY (rowid=?)
+        USE TEMP B-TREE FOR GROUP BY
+        USE TEMP B-TREE FOR count(DISTINCT)
+        USE TEMP B-TREE FOR ORDER BY
+  [    2.897 ms] single-day lookup
+        SCAN o
+        SEARCH c USING INTEGER PRIMARY KEY (rowid=?)
+  [   11.417 ms] filter on ol.product_id
+        SCAN ol
+  [   14.844 ms] NEGATIVE: date(ordered_on)=
+        SCAN orders
+
+=== + ix_orders_ordered_on ===
+  [  127.133 ms] dashboard (aggregate, 2025)
+        SCAN ol
+        SEARCH o USING INTEGER PRIMARY KEY (rowid=?)
+        SEARCH c USING INTEGER PRIMARY KEY (rowid=?)
+        SEARCH p USING INTEGER PRIMARY KEY (rowid=?)
+        USE TEMP B-TREE FOR GROUP BY
+        USE TEMP B-TREE FOR count(DISTINCT)
+        USE TEMP B-TREE FOR ORDER BY
+  [    0.223 ms] single-day lookup
+        SEARCH o USING INDEX ix_orders_ordered_on (ordered_on=?)
+        SEARCH c USING INTEGER PRIMARY KEY (rowid=?)
+  [   11.638 ms] filter on ol.product_id
+        SCAN ol
+  [   12.996 ms] NEGATIVE: date(ordered_on)=
+        SCAN orders USING COVERING INDEX ix_orders_ordered_on
+
+=== + ix_orderline_order ===
+  [ 1075.402 ms] dashboard (aggregate, 2025)
+        SEARCH o USING INDEX ix_orders_ordered_on (ordered_on>? AND ordered_on<?)
+        SEARCH c USING INTEGER PRIMARY KEY (rowid=?)
+        SEARCH ol USING INDEX ix_orderline_order (order_id=?)
+        SEARCH p USING INTEGER PRIMARY KEY (rowid=?)
+        USE TEMP B-TREE FOR GROUP BY
+        USE TEMP B-TREE FOR count(DISTINCT)
+        USE TEMP B-TREE FOR ORDER BY
+  [    0.209 ms] single-day lookup
+        SEARCH o USING INDEX ix_orders_ordered_on (ordered_on=?)
+        SEARCH c USING INTEGER PRIMARY KEY (rowid=?)
+  [   10.294 ms] filter on ol.product_id
+        SCAN ol
+  [   12.915 ms] NEGATIVE: date(ordered_on)=
+        SCAN orders USING COVERING INDEX ix_orders_ordered_on
+
+=== + ix_orderline_product ===
+  [ 1047.291 ms] dashboard (aggregate, 2025)
+        SEARCH o USING INDEX ix_orders_ordered_on (ordered_on>? AND ordered_on<?)
+        SEARCH c USING INTEGER PRIMARY KEY (rowid=?)
+        SEARCH ol USING INDEX ix_orderline_order (order_id=?)
+        SEARCH p USING INTEGER PRIMARY KEY (rowid=?)
+        USE TEMP B-TREE FOR GROUP BY
+        USE TEMP B-TREE FOR count(DISTINCT)
+        USE TEMP B-TREE FOR ORDER BY
+  [    0.211 ms] single-day lookup
+        SEARCH o USING INDEX ix_orders_ordered_on (ordered_on=?)
+        SEARCH c USING INTEGER PRIMARY KEY (rowid=?)
+  [    1.938 ms] filter on ol.product_id
+        SEARCH ol USING INDEX ix_orderline_product (product_id=?)
+  [   12.906 ms] NEGATIVE: date(ordered_on)=
+        SCAN orders USING COVERING INDEX ix_orders_ordered_on
+
+SUMMARY (median ms)
+query                             baseline (no extra ind  + ix_orders_ordered_on    + ix_orderline_order  + ix_orderline_product
+dashboard (aggregate, 2025)                      124.445                 127.133                1075.402                1047.291
+single-day lookup                                  2.897                   0.223                   0.209                   0.211
+filter on ol.product_id                           11.417                  11.638                  10.294                   1.938
+NEGATIVE: date(ordered_on)=                       14.844                  12.996                  12.915                  12.906
