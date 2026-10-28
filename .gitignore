@@ -1,0 +1,8 @@
+# Ignore SQLite database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Ignore local OS junk files
+.DS_Store
+Thumbs.db
